@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORBIT // Satellite Image Compression & Rate-Distortion Research Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="orbit-app">
+
+  <!-- LEFT FIXED NAVIGATION SIDEBAR -->
+  <aside class="orbit-sidebar" role="navigation">
+    <div class="brand-block">
+      <div class="brand-symbol" aria-hidden="true">
+        <div class="ring-core"></div>
+        <div class="ring-outer"></div>
+      </div>
+      <div class="brand-meta">
+        <h1 class="brand-title">ORBIT</h1>
+        <span class="brand-sub">RESEARCH LAB</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">RESEARCH MODULES</span>
+      <nav class="nav-menu">
+        <a href="#overview-section" class="nav-item active">
+          <span class="nav-icon">◆</span>
+          <span class="nav-text">Mission Overview</span>
+        </a>
+        <a href="#compression-lab-section" class="nav-item">
+          <span class="nav-icon">▤</span>
+          <span class="nav-text">Compression Engine</span>
+        </a>
+        <a href="#benchmarks-section" class="nav-item">
+          <span class="nav-icon">⇁</span>
+          <span class="nav-text">R-D Trade-off</span>
+        </a>
+        <a href="#pipeline-section" class="nav-item">
+          <span class="nav-icon">↻</span>
+          <span class="nav-text">Downlink Pipeline</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- MISSION STATUS CARD -->
+    <div class="sidebar-card">
+      <div class="card-sparkle">✦</div>
+      <h3 class="card-heading">LEO Pass Telemetry</h3>
+      <p class="card-desc">Simulating X-Band transfer under atmospheric attenuation.</p>
+      <div class="card-badge">
+        <span class="status-dot"></span> <span id="pass-window-timer">08:42 MIN PASS</span>
+      </div>
+    </div>
+
+    <!-- INSTITUTION FOOTER -->
+    <div class="sidebar-credit">
+      <div class="society-title">AEROSPACE SOCIETY</div>
+      <div class="society-location">BIT MESRA · RANCHI</div>
+      <div class="society-version">
+        <span>RESEARCH HARNESS</span>
+        <span class="version-tag">R-D LAB</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- SCROLLABLE DASHBOARD -->
+  <div class="scroll-wrapper">
+
+    <!-- TOP HEADER -->
+    <header class="top-nav">
+      <div class="breadcrumb">
+        <span>Research Harness</span>
+        <span class="sep">/</span>
+        <span class="current">Rate-Distortion Evaluation</span>
+      </div>
+      <div class="top-actions">
+        <div class="sys-online-badge">
+          <span class="green-indicator"></span>
+          <span>ONBOARD DSP ACTIVE</span>
+        </div>
+        <div class="user-avatar" title="Aerospace Society, BIT Mesra">AS</div>
+      </div>
+    </header>
+
+    <main class="content-scroll">
+
+      <!-- ================= HERO & EARTH SIMULATION ================= -->
+      <section class="orbit-section hero-section" id="overview-section">
+        <div class="hero-left">
+          <span class="hero-sub">— SATELLITE DATA OPTIMIZATION RESEARCH</span>
+          <h2 class="hero-headline">
+            More signal.<br>
+            <span class="gradient-text">Less payload.</span>
+          </h2>
+          <p class="hero-lead">
+            Design and rate-distortion evaluation of high-resolution satellite image compression. Reducing onboard storage constraints while preserving tactical ground structures.
+          </p>
+
+          <div class="pill-badge-row">
+            <span class="meta-pill">WAVELETS VS JPEG</span>
+            <span class="meta-pill highlight">✦ PROGRESSIVE PASS</span>
+            <span class="meta-pill">REGION OF INTEREST (ROI)</span>
+            <span class="meta-pill">INTER-BAND DELTA</span>
+          </div>
+        </div>
+
+        <!-- 3D WIREFRAME EARTH & SATELLITE -->
+        <div class="hero-right">
+          <div class="globe-stage">
+            <svg class="globe-svg" viewBox="0 0 340 340">
+              <defs>
+                <radialGradient id="earthGrad" cx="35%" cy="30%" r="75%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="45%" stop-color="#0284c7" />
+                  <stop offset="85%" stop-color="#082f49" />
+                  <stop offset="100%" stop-color="#030712" />
+                </radialGradient>
+                <linearGradient id="orbitRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="rgba(56, 189, 248, 0.7)" />
+                  <stop offset="50%" stop-color="rgba(14, 165, 233, 0.15)" />
+                  <stop offset="100%" stop-color="rgba(56, 189, 248, 0.5)" />
+                </linearGradient>
+                <filter id="atmGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="12" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              <circle cx="170" cy="170" r="120" fill="none" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1.5" />
+              <ellipse cx="170" cy="170" rx="155" ry="58" fill="none" stroke="url(#orbitRingGrad)" stroke-width="1.5" transform="rotate(-28 170 170)" />
+              <ellipse cx="170" cy="170" rx="145" ry="68" fill="none" stroke="rgba(148, 163, 184, 0.12)" stroke-dasharray="3 3" transform="rotate(32 170 170)" />
+              <circle cx="170" cy="170" r="105" fill="url(#earthGrad)" filter="url(#atmGlow)" />
+
+              <!-- Longitude & Latitude Graticules -->
+              <path d="M 65 170 Q 170 130 275 170" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
+              <path d="M 65 170 Q 170 210 275 170" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
+              <path d="M 170 65 Q 130 170 170 275" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
+              <path d="M 170 65 Q 210 170 170 275" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" />
+
+              <!-- Continents -->
+              <ellipse cx="150" cy="135" rx="36" ry="24" fill="#34d399" opacity="0.8" transform="rotate(-15 150 135)" />
+              <ellipse cx="225" cy="195" rx="28" ry="18" fill="#34d399" opacity="0.7" />
+              <circle cx="115" cy="180" r="14" fill="#34d399" opacity="0.65" />
+
+              <!-- Orbiting LEO Satellite -->
+              <g class="orbit-sat-group">
+                <rect x="264" y="98" width="16" height="9" rx="1.5" fill="#f8fafc" stroke="#0284c7" stroke-width="1" />
+                <rect x="252" y="100" width="10" height="5" fill="#38bdf8" />
+                <rect x="282" y="100" width="10" height="5" fill="#38bdf8" />
+                <line x1="262" y1="102" x2="252" y2="102" stroke="#94a3b8" />
+                <line x1="280" y1="102" x2="292" y2="102" stroke="#94a3b8" />
+              </g>
+            </svg>
+
+            <!-- BIT Mesra Coordinates -->
+            <div class="globe-coordinates">
+              <span class="coord-val">23° 25' N · 85° 26' E</span>
+              <span class="coord-station">BIT MESRA · EARTH OBSERVATION</span>
+            </div>
+            <div class="fidelity-tag">HIGH RESOLUTION <span class="tag-num">16-BIT</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOP METRIC STATUS TILES -->
+      <section class="kpi-banner-row">
+        <div class="status-card">
+          <span class="card-eyebrow">ACTIVE SENSOR PAYLOAD</span>
+          <div class="card-primary" id="kpi-active-image">Awaiting pass</div>
+          <span class="card-caption">16-bit uncompressed source</span>
+        </div>
+
+        <div class="status-card">
+          <span class="card-eyebrow">ALGORITHM ARCHITECTURE</span>
+          <div class="card-primary" id="kpi-algo-name">Wavelet 2D-DWT</div>
+          <span class="card-caption">Spacecraft standard · <strong class="green-text">ACTIVE</strong></span>
+        </div>
+
+        <div class="status-card">
+          <span class="card-eyebrow">EST. STORAGE SAVED</span>
+          <div class="card-primary" id="kpi-savings-pct">— <span class="sub-unit">not calculated</span></div>
+          <span class="card-caption">Downlink packet size reduction</span>
+        </div>
+
+        <div class="status-card">
+          <span class="card-eyebrow">ONBOARD BUFFER STATE</span>
+          <div class="card-primary" id="kpi-buffer-state"><span class="status-dot-inline"></span> Strip Tiling</div>
+          <span class="card-caption">Radiation-hardened FPGA RAM safe</span>
+        </div>
+      </section>
+
+      <!-- ================= COMPRESSION & RESEARCH HARNESS ================= -->
+      <section class="orbit-section" id="compression-lab-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-prefix">01 / RESEARCH ALGORITHM LAB</span>
+            <h3 class="section-title">Configure onboard compression</h3>
+            <p class="section-subtitle">Simulate weak satellite flight computers, multi-pass downlink, and region-of-interest allocation.</p>
+          </div>
+          <div class="demo-sim-alert">
+            <span class="alert-icon">ⓘ</span>
+            <div>
+              <strong>RATE-DISTORTION EXPERIMENT</strong>
+              <p>Simulating quantization noise & transmission degradation on uploaded pixels.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-grid">
+          <!-- SOURCE INPUT & HARDWARE LIMITS -->
+          <div class="panel-box">
+            <div class="panel-box-header">
+              <span class="box-tag">RESEARCH POINT 1: SENSOR & MEMORY</span>
+              <span class="box-index">01</span>
+            </div>
+            <h4 class="box-title">Source imagery & memory tiling</h4>
+
+            <!-- Drag & Drop Area -->
+            <div class="drop-zone" id="drop-zone">
+              <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" class="visually-hidden">
+              <div class="drop-icon-box">↑</div>
+              <div class="drop-main-text">Drop high-resolution satellite imagery here</div>
+              <div class="drop-sub-text">or <button type="button" class="link-btn" id="browse-btn">browse files</button> from ground station</div>
+              <div class="file-format-spec">PNG · JPG · WEBP · GEOTIFF / CLIENT-SIDE PROCESSING</div>
+            </div>
+
+            <!-- Onboard Memory Striping -->
+            <div class="form-field">
+              <div class="field-meta">
+                <span class="field-name">ONBOARD MEMORY BUFFER STRIPING</span>
+                <span class="field-guide">Weak satellite computer protection</span>
+              </div>
+              <select class="orbit-select" id="striping-select">
+                <option value="512">512 px Scan-Strips (Low RAM FPGA Safe Mode)</option>
+                <option value="1024" selected>1024 px Tiles (Standard LEO Buffer)</option>
+                <option value="full">Full Frame Buffering (Risk of DSP Memory Crash)</option>
+              </select>
+              <p class="field-hint">Satellites have weak onboard computers; dividing large swathes into small strips prevents system buffer overflow.</p>
+            </div>
+
+            <!-- Inter-Band Correlation -->
+            <div class="form-field">
+              <div class="field-meta">
+                <span class="field-name">SPECTRAL BAND INTER-CORRELATION</span>
+                <span class="field-guide">Redundant color channels</span>
+              </div>
+              <select class="orbit-select" id="spectral-select">
+                <option value="rgb">True-Color RGB (High Correlation)</option>
+                <option value="nir">Near-Infrared (NIR) Multispectral Layer</option>
+                <option value="decorrelated">Inter-Band Delta Residual (Transmit Differences Only)</option>
+              </select>
+              <p class="field-hint">Adjacent spectral bands share ~85% mutual information. Sending only delta differences saves critical downlink budget.</p>
+            </div>
+
+            <div class="meta-strip">
+              <div class="meta-cell">
+                <span class="cell-label">FILE NAME</span>
+                <span class="cell-val" id="meta-filename">—</span>
+              </div>
+              <div class="meta-cell">
+                <span class="cell-label">DIMENSIONS</span>
+                <span class="cell-val" id="meta-dimensions">—</span>
+              </div>
+              <div class="meta-cell">
+                <span class="cell-label">RAW BIT-DEPTH</span>
+                <span class="cell-val">16-Bit / Pixel</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ENCODER SETTINGS & SATELLITE PHENOMENA -->
+          <div class="panel-box">
+            <div class="panel-box-header">
+              <span class="box-tag">RESEARCH POINT 2 & 3: ALGORITHM & LINK</span>
+              <span class="box-index">02</span>
+            </div>
+            <h4 class="box-title">Algorithm & downlink resilience</h4>
+
+            <!-- Codec Architecture Selector -->
+            <div class="preset-cards-row">
+              <div class="preset-card active" data-algo="wavelet">
+                <span class="preset-sparkle">✦</span>
+                <span class="preset-title">Wavelet DWT</span>
+                <span class="preset-desc">JPEG 2000 Space Standard</span>
+                <span class="preset-tag accent">RUNWAY/COAST INTACT</span>
+              </div>
+              <div class="preset-card" data-algo="jpeg">
+                <span class="preset-sparkle">▦</span>
+                <span class="preset-title">Standard JPEG</span>
+                <span class="preset-desc">8x8 Tiny Blocks</span>
+                <span class="preset-tag">BLOCKING ARTIFACTS</span>
+              </div>
+              <div class="preset-card" data-algo="ai">
+                <span class="preset-sparkle">🧠</span>
+                <span class="preset-title">Neural Latent AI</span>
+                <span class="preset-desc">Autoencoder Reconstruction</span>
+                <span class="preset-tag">EXTREME SQUEEZE</span>
+              </div>
+            </div>
+
+            <!-- Target Bitrate Slider -->
+            <div class="slider-block">
+              <div class="slider-head">
+                <span class="slider-label">BITS PER PIXEL (BPP) ALLOCATION</span>
+                <span class="slider-readout" id="bpp-readout">0.50 <span class="dim">bpp</span></span>
+              </div>
+              <input type="range" class="orbit-range" id="bpp-slider" min="0.05" max="4.00" step="0.05" value="0.50">
+              <div class="slider-foot">
+                <span>0.05 bpp (Extreme Squeeze)</span>
+                <span>16.0 bpp (Raw Uncompressed)</span>
+              </div>
+            </div>
+
+            <!-- Region of Interest (ROI) Toggle -->
+            <div class="toggle-card">
+              <div class="toggle-left">
+                <strong class="toggle-title">Region of Interest (ROI) Saliency Compression</strong>
+                <p class="toggle-desc">Heavily compresses empty ocean, desert sand, and clouds. Preserves high bit-budget for harbors, runways, and urban centers.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="roi-toggle" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <!-- Progressive "Big Picture First" Transmission & Storm Cutoff -->
+            <div class="progressive-harness-box">
+              <div class="prog-head">
+                <strong>Progressive Downlink ("Big Picture First")</strong>
+                <span class="prog-status" id="prog-pass-text">Pass 3: Full Frequency (+HH)</span>
+              </div>
+              <p class="prog-desc">Transmits global structural outline first. If an ionospheric storm cuts the 5-10 min link, the base scene is still recognizable.</p>
+              <div class="btn-group-passes">
+                <button type="button" class="pass-btn active" data-pass="1">Pass 1: Base LL Thumbnail</button>
+                <button type="button" class="pass-btn active" data-pass="2">Pass 2: +LH/HL Geometry</button>
+                <button type="button" class="pass-btn active" data-pass="3">Pass 3: +HH Fine Textures</button>
+              </div>
+              <button type="button" class="btn-storm-trigger" id="storm-btn">
+                ⚡ Simulate Sudden Ionosphere Storm Cutoff (Signal Loss)
+              </button>
+            </div>
+
+            <button type="button" class="btn-gradient-cta" id="run-compression-btn">
+              <span>Execute Research Compression Pass</span>
+              <span class="cta-arrow">↗</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= R-D EVALUATION & INSPECTION ================= -->
+      <section class="orbit-section" id="benchmarks-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-prefix">02 / RATE-DISTORTION (R-D) METRICS</span>
+            <h3 class="section-title">Inspect the trade-off</h3>
+            <p class="section-subtitle">Evaluate compression ratio vs visual edge preservation (PSNR & SSIM).</p>
+          </div>
+          <div class="btn-group-right">
+            <span class="tag-estimates">LEO X-BAND MODEL</span>
+            <button type="button" class="btn-outline-report" id="export-report-btn">↓ Export research report</button>
+          </div>
+        </div>
+
+        <div class="inspection-grid">
+          <!-- VIEWPORT CANVAS -->
+          <div class="inspection-viewport-card">
+            <div class="inspection-head">
+              <div>
+                <span class="view-tag">TELEMETRY VIEWPORT</span>
+                <h4 class="view-title">Source vs. Reconstructed Trade-off</h4>
+              </div>
+              <div class="view-mode-toggle">
+                <button type="button" class="mode-btn active" id="view-side-btn">Side by Side</button>
+                <button type="button" class="mode-btn" id="view-wipe-btn">Split Wipe</button>
+                <button type="button" class="mode-btn" id="view-residual-btn">Error Heatmap</button>
+              </div>
+            </div>
+
+            <!-- Viewport Stage -->
+            <div class="dual-canvas-stage" id="stage-dual">
+              <div class="canvas-half">
+                <div class="half-header">
+                  <span>RAW SENSOR SOURCE</span>
+                  <span class="dim">16-BIT UNCOMPRESSED</span>
+                </div>
+                <div class="canvas-frame">
+                  <canvas id="canvas-source"></canvas>
+                  <div class="canvas-empty-state" id="source-empty">
+                    <span>✦</span>
+                    <p>Load satellite image above</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="canvas-half">
+                <div class="half-header">
+                  <span>COMPRESSED RECONSTRUCTION</span>
+                  <span class="dim" id="recon-status-badge">AWAITING PASS</span>
+                </div>
+                <div class="canvas-frame">
+                  <canvas id="canvas-recon"></canvas>
+                  <div class="canvas-empty-state" id="recon-empty">
+                    <span>∿</span>
+                    <p>Run compression to preview</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Split Wipe Mode -->
+            <div class="wipe-canvas-stage" id="stage-wipe" style="display: none;">
+              <canvas id="canvas-wipe"></canvas>
+              <div class="wipe-divider" id="wipe-bar" style="left: 50%;">
+                <div class="wipe-thumb">⬌</div>
+                <div class="wipe-tag tag-l">RAW 16-BIT</div>
+                <div class="wipe-tag tag-r">COMPRESSED</div>
+              </div>
+              <div class="storm-interruption-overlay" id="storm-overlay" style="display: none;">
+                ⚠️ IONOSPHERIC STORM: DOWNLINK TERMINATED MID-PASS
+              </div>
+            </div>
+
+            <!-- Residual Error Heatmap Legend -->
+            <div class="heatmap-legend" id="heatmap-legend" style="display: none;">
+              <span>Δ 0.0 (Zero Error)</span>
+              <div class="heat-bar" aria-hidden="true"></div>
+              <span>High Quantization Distortion</span>
+            </div>
+
+            <!-- Artifact Watch -->
+            <div class="artifact-watch-card">
+              <div class="artifact-icon" id="artifact-icon">⚲</div>
+              <div>
+                <span class="artifact-title" id="artifact-title">Artifact & Structural Integrity Watch</span>
+                <p class="artifact-desc" id="artifact-notice">
+                  Run compression to see whether continuous airport runways and coastlines remain intact.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- BENCHMARK SUMMARY (BPP, CR, PSNR, SSIM) -->
+          <div class="benchmark-summary-card">
+            <div class="bench-head">
+              <span class="box-tag">BENCHMARK SUMMARY</span>
+              <span class="badge-demo">EVALUATION</span>
+            </div>
+            <h4 class="bench-title">Rate-Distortion performance</h4>
+
+            <div class="dial-metric-row">
+              <div class="cr-stat">
+                <span class="stat-label">COMPRESSION RATIO (CR)</span>
+                <div class="cr-value" id="cr-display">32.0 <span class="cr-unit">: 1</span></div>
+              </div>
+              <div class="circular-dial">
+                <svg viewBox="0 0 100 100" class="dial-svg">
+                  <circle cx="50" cy="50" r="42" class="dial-track" />
+                  <circle cx="50" cy="50" r="42" class="dial-progress" id="dial-ring" stroke-dasharray="264" stroke-dashoffset="264" />
+                </svg>
+                <div class="dial-center">
+                  <span class="dial-number" id="dial-savings-pct">96</span>
+                  <span class="dial-pct">%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="reduction-bar-block">
+              <div class="red-meta">
+                <span class="reduction-label">Downlink Payload Savings</span>
+                <span class="red-sec" id="downlink-time-val">14.2 sec @ 15 Mbps</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" id="reduction-bar" style="width: 96%;"></div>
+              </div>
+            </div>
+
+            <!-- Scientific Metric Readouts -->
+            <div class="metric-readout-stack">
+              <div class="metric-row">
+                <div class="m-left">
+                  <span class="m-dot blue"></span>
+                  <div>
+                    <span class="m-title">PSNR (Peak Signal-to-Noise Ratio)</span>
+                    <span class="m-subtitle">Compares images dot-by-dot (Higher is better)</span>
+                  </div>
+                </div>
+                <div class="m-val" id="metric-psnr">38.4 <span class="m-unit">dB</span></div>
+              </div>
+
+              <div class="metric-row">
+                <div class="m-left">
+                  <span class="m-dot cyan"></span>
+                  <div>
+                    <span class="m-title">SSIM (Structural Similarity Index)</span>
+                    <span class="m-subtitle">Checks if runways and coastlines keep outlines (0 to 1)</span>
+                  </div>
+                </div>
+                <div class="m-val" id="metric-ssim">0.962 <span class="m-unit">/ 1.00</span></div>
+              </div>
+
+              <div class="metric-row">
+                <div class="m-left">
+                  <span class="m-dot green"></span>
+                  <div>
+                    <span class="m-title">Achieved Bitrate (bpp)</span>
+                    <span class="m-subtitle">Bits per pixel (Lower is faster downlink)</span>
+                  </div>
+                </div>
+                <div class="m-val" id="metric-bpp">0.50 <span class="m-unit">bpp</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CODEC RESEARCH MATRIX ================= -->
+      <section class="orbit-section" id="pipeline-section">
+        <p class="benchmark-disclaimer">Qualitative research comparison based on onboard flight test experiments.</p>
+
+        <div class="table-container">
+          <table class="codec-matrix-table">
+            <thead>
+              <tr>
+                <th>RESEARCH CODEC</th>
+                <th>COMPRESSION BEHAVIOR</th>
+                <th>EDGE PRESERVATION</th>
+                <th>ONBOARD DSP LOAD</th>
+                <th>SPACE APPLICABILITY</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="codec-identity">
+                    <span class="codec-avatar cyan">W</span>
+                    <div>
+                      <strong>Wavelet 2D-DWT</strong>
+                      <span class="sub">JPEG 2000 / CCSDS 122.0</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge-level green">High</span></td>
+                <td><span class="dots-fidelity">●●●●●</span></td>
+                <td>Moderate (FPGA Tiled)</td>
+                <td>Coastlines & Runways without 8x8 blocking</td>
+                <td><span class="status-tag active">PRIMARY ENGINE</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="codec-identity">
+                    <span class="codec-avatar blue">J</span>
+                    <div>
+                      <strong>Standard JPEG</strong>
+                      <span class="sub">Discrete Cosine Transform</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge-level yellow">Medium</span></td>
+                <td><span class="dots-fidelity">●●○○○</span></td>
+                <td>Low (Legacy)</td>
+                <td>8x8 blocks cut across straight ground runways</td>
+                <td><span class="status-tag demo">COMPARISON BASE</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="codec-identity">
+                    <span class="codec-avatar purple">AI</span>
+                    <div>
+                      <strong>Neural Autoencoder</strong>
+                      <span class="sub">Deep Latent Squeeze</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge-level green">Extreme</span></td>
+                <td><span class="dots-fidelity">●●●●○</span></td>
+                <td>High (Neural Accelerator)</td>
+                <td>Sharp textures at sub-0.2 bpp bitrates</td>
+                <td><span class="status-tag active">EXPERIMENTAL</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- LOWER RESEARCH PANELS -->
+        <div class="lower-cards-grid">
+          <div class="panel-box scene-intel-card">
+            <div class="panel-box-header">
+              <span class="box-tag">RESEARCH POINT 2: RATE OF INTEREST (ROI)</span>
+              <span class="plus-icon">+</span>
+            </div>
+            <h4 class="box-title">Save bits where nothing is happening</h4>
+
+            <div class="scene-intel-body">
+              <div class="scene-intel-icon">🛰️</div>
+              <div>
+                <strong>Over 60% of satellite imagery is empty terrain.</strong>
+                <p>
+                  Half of satellite captures are clouds, oceans, and desert sand. The ROI compressor applies aggressive loss where blur does not matter, saving maximum bitrate budget for cities, airports, and shipping harbors.
+                </p>
+              </div>
+            </div>
+
+            <div class="badge-capsule-row">
+              <span class="capsule-pill">AIRPORT RUNWAYS</span>
+              <span class="capsule-pill">SHIPPING HARBORS</span>
+              <span class="capsule-pill">OCEAN DAMPING</span>
+            </div>
+          </div>
+
+          <div class="panel-box process-flow-card">
+            <div class="panel-box-header">
+              <span class="box-tag">DOWNLINK PROTOCOL FLOW</span>
+              <span class="badge-mini-pipeline">PIPELINE</span>
+            </div>
+            <h4 class="box-title">From orbit capture to ground analysis</h4>
+
+            <div class="process-steps-list">
+              <div class="step-item done">
+                <span class="step-num">01</span>
+                <span class="step-label">Capture</span>
+                <span class="step-detail">16-bit multi-spectral sensor scan</span>
+                <span class="step-check">✓</span>
+              </div>
+              <div class="step-item done">
+                <span class="step-num">02</span>
+                <span class="step-label">Tiling</span>
+                <span class="step-detail">Scan-strip memory buffer to protect FPGA</span>
+                <span class="step-check">✓</span>
+              </div>
+              <div class="step-item active">
+                <span class="step-num">03</span>
+                <span class="step-label">Encode</span>
+                <span class="step-detail">DWT Wavelet + ROI Saliency allocation</span>
+                <span class="step-check">⦿</span>
+              </div>
+              <div class="step-item">
+                <span class="step-num">04</span>
+                <span class="step-label">Downlink</span>
+                <span class="step-detail">Progressive X-Band pass to ground station</span>
+                <span class="step-check">○</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GLOBAL FOOTER -->
+      <footer class="app-global-footer">
+        <div class="footer-left">
+          <span class="footer-orb">●</span>
+          <strong>ORBIT</strong>
+          <span class="footer-sub">Satellite Image Compression Research Studio · Aerospace Society, BIT Mesra, Ranchi</span>
+        </div>
+        <div class="footer-right">
+          <span class="footer-tag">AEROSPACE SOCIETY · BIT MESRA</span>
+          <span class="footer-dots">••</span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
